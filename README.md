@@ -48,6 +48,21 @@ Then, and every time you update your native dependencies, run:
 bundle exec pod install
 ```
 
+If you are developing on an Intel Mac iOS Simulator and using Square Mobile Payments SDK,
+disable the Square iOS pod for simulator runs to avoid `MockReaderUI/CorePaymentCard` launch crashes:
+
+```sh
+cd ios
+DISABLE_SQUARE_IOS=1 bundle exec pod install
+```
+
+For real iPhone builds (Square enabled), reinstall pods without that flag:
+
+```sh
+cd ios
+bundle exec pod install
+```
+
 For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
 
 ```sh

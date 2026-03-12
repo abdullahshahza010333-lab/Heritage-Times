@@ -10,8 +10,8 @@ import styles from './PaymentMethodScreen.styles';
 
 type RootStackParamList = {
   PaymentMethod: { amount: number };
-  CashPayment: { amount: number };
   CardPayment: { amount: number };
+  Success: { amount: number; method: string };
 };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PaymentMethod'>;
@@ -21,7 +21,7 @@ const PaymentMethodScreen: React.FC<Props> = ({ route, navigation }) => {
 
   const handlePaymentMethod = (method: 'cash' | 'card') => {
     if (method === 'cash') {
-      navigation.navigate('CashPayment', { amount });
+      navigation.navigate('Success', { amount, method: 'Cash' });
     } else {
       navigation.navigate('CardPayment', { amount });
     }
@@ -73,7 +73,7 @@ const PaymentMethodScreen: React.FC<Props> = ({ route, navigation }) => {
           <View style={styles.paymentTextContainer}>
             <Text style={styles.paymentMethodTitle}>Card</Text>
             <Text style={styles.paymentMethodDescription}>
-              Pay with credit or debit card
+              Pay with Square Tap to Pay
             </Text>
           </View>
           <Text style={styles.paymentArrow}>›</Text>

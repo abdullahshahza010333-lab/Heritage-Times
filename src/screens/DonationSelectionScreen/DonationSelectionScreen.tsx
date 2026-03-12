@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import styles from './DonationSelectionScreen.styles';
 import Colors from '../../config/colors';
+import { DONATION_PRESET_AMOUNTS } from '../../config/donationAmounts';
 
 type RootStackParamList = {
   DonationSelection: undefined;
@@ -26,32 +27,52 @@ interface DonationItem {
 const DonationSelectionScreen: React.FC<Props> = ({ navigation }) => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState('');
+  const [isOtherSelected, setIsOtherSelected] = useState(false);
+  const customAmountInputRef = useRef<TextInput>(null);
 
-  const presets: DonationItem[] = [
-    { id: '1', amount: 5 },
-    { id: '2', amount: 7 },
-    { id: '3', amount: 10 },
-  ];
+  const presets: DonationItem[] = DONATION_PRESET_AMOUNTS.map((amount, index) => ({
+    id: `${index + 1}`,
+    amount,
+  }));
 
   const handleSelectPreset = (amount: number) => {
     setSelectedAmount(amount);
+    setIsOtherSelected(false);
     setCustomAmount('');
   };
 
-  const handleCustomAmount = () => {
-    if (!customAmount || isNaN(Number(customAmount)) || Number(customAmount) <= 0) {
-      Alert.alert('Invalid Amount', 'Please enter a valid donation amount');
+  const handleSelectOther = () => {
+    setIsOtherSelected(true);
+    setSelectedAmount(null);
+    setTimeout(() => {
+      customAmountInputRef.current?.focus();
+    }, 50);
+  };
+
+  const handleCustomAmountChange = (value: string) => {
+    const sanitizedValue = value.replace(/[^0-9]/g, '');
+    setCustomAmount(sanitizedValue);
+
+    if (!sanitizedValue) {
+      setSelectedAmount(null);
       return;
     }
-    setSelectedAmount(Number(customAmount));
-    setCustomAmount('');
+
+    const parsedAmount = Number(sanitizedValue);
+    setSelectedAmount(parsedAmount > 0 ? parsedAmount : null);
   };
 
   const handleContinue = () => {
-    if (selectedAmount === null || selectedAmount <= 0) {
-      Alert.alert('No Amount Selected', 'Please select a donation amount');
+    if (isOtherSelected && (!customAmount || Number(customAmount) <= 0)) {
+      Alert.alert('Invalid Amount', 'Please enter a valid donation amount');
       return;
     }
+
+    if (selectedAmount === null || selectedAmount <= 0) {
+      Alert.alert('Invalid Amount', 'Please enter a valid donation amount');
+      return;
+    }
+
     navigation.navigate('PaymentMethod', { amount: selectedAmount });
   };
 
@@ -63,7 +84,7 @@ const DonationSelectionScreen: React.FC<Props> = ({ navigation }) => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Select Donation Amount</Text>
         <Text style={styles.headerSubtitle}>
-          Choose a preset amount or enter a custom amount
+          Choose one of the quick amounts or Other
         </Text>
       </View>
 
@@ -98,40 +119,55 @@ const DonationSelectionScreen: React.FC<Props> = ({ navigation }) => {
               </Text>
             </TouchableOpacity>
           ))}
+
+          <TouchableOpacity
+            style={[
+              styles.presetButton,
+              isOtherSelected && styles.presetButtonActive,
+            ]}
+            onPress={handleSelectOther}>
+            <Text
+              style={[
+                styles.presetButtonText,
+                isOtherSelected && styles.presetButtonTextActive,
+              ]}>
+              Other
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
       {/* Custom Amount Section */}
-      <View style={styles.customAmountContainer}>
-        <Text style={styles.sectionTitle}>Custom Amount</Text>
-        <View style={styles.customInputGroup}>
-          <Text style={styles.currencySymbol}>$</Text>
-          <TextInput
-            style={styles.customInput}
-            placeholder="0.00"
-            placeholderTextColor={Colors.gray500}
-            keyboardType="decimal-pad"
-            value={customAmount}
-            onChangeText={setCustomAmount}
-            editable={true}
-          />
+      {isOtherSelected && (
+        <View style={styles.customAmountContainer}>
+          <Text style={styles.sectionTitle}>Other Amount</Text>
+          <View style={styles.customInputGroup}>
+            <Text style={styles.currencySymbol}>$</Text>
+            <TextInput
+              ref={customAmountInputRef}
+              style={styles.customInput}
+              placeholder="0"
+              placeholderTextColor={Colors.gray500}
+              keyboardType="number-pad"
+              inputMode="numeric"
+              value={customAmount}
+              onChangeText={handleCustomAmountChange}
+              editable={true}
+              autoFocus
+            />
+          </View>
         </View>
-        <TouchableOpacity
-          style={styles.customAmountButton}
-          onPress={handleCustomAmount}
-          disabled={!customAmount}>
-          <Text style={styles.customAmountButtonText}>Set Amount</Text>
-        </TouchableOpacity>
-      </View>
+      )}
 
       {/* Continue Button */}
       <TouchableOpacity
         style={[
           styles.continueButton,
-          selectedAmount === null && styles.continueButtonDisabled,
+          (selectedAmount === null || selectedAmount <= 0) &&
+            styles.continueButtonDisabled,
         ]}
         onPress={handleContinue}
-        disabled={selectedAmount === null}>
+        disabled={selectedAmount === null || selectedAmount <= 0}>
         <Text style={styles.continueButtonText}>Continue to Payment</Text>
       </TouchableOpacity>
     </ScrollView>

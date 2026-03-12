@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { moderateScale as RFValue } from 'react-native-size-matters';
 import Colors from '../../config/colors';
 
@@ -20,6 +20,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: RFValue(25),
+    marginTop: Platform.OS === "ios" ? RFValue(25):0
   },
   successIcon: {
     fontSize: RFValue(50),
@@ -73,6 +74,9 @@ const styles = StyleSheet.create({
     fontSize: RFValue(14),
     fontWeight: '600',
     color: Colors.textPrimary,
+  },
+  statusCompleted: {
+    color: Colors.success,
   },
   messageContainer: {
     width: '100%',

@@ -17,6 +17,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Success'>;
 
 const SuccessScreen: React.FC<Props> = ({ route, navigation }) => {
   const { amount, method } = route.params;
+  const isCash = method === 'Cash';
   const transactionId = `HT${Date.now().toString().slice(-8)}`;
   const date = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
@@ -42,14 +43,20 @@ const SuccessScreen: React.FC<Props> = ({ route, navigation }) => {
       </View>
 
       {/* Success Message */}
-      <Text style={styles.successTitle}>Payment Successful!</Text>
+      <Text style={styles.successTitle}>
+        {isCash ? 'Cash Confirmation' : 'Payment Successful!'}
+      </Text>
       <Text style={styles.successSubtitle}>
-        Thank you for your generous donation
+        {isCash
+          ? 'Please hand the cash amount shown below to a team member'
+          : 'Thank you for your generous donation'}
       </Text>
 
-      {/* Receipt Section */}
+      {/* Confirmation Section */}
       <View style={styles.receiptContainer}>
-        <Text style={styles.receiptTitle}>Receipt</Text>
+        <Text style={styles.receiptTitle}>
+          {isCash ? 'Confirmation' : 'Receipt'}
+        </Text>
 
         <View style={styles.receiptContent}>
           {/* Amount */}
@@ -70,35 +77,40 @@ const SuccessScreen: React.FC<Props> = ({ route, navigation }) => {
             <Text style={styles.receiptValue}>{date}</Text>
           </View>
 
-          {/* Transaction ID */}
-          <View style={styles.receiptRow}>
-            <Text style={styles.receiptLabel}>Transaction ID:</Text>
-            <Text style={styles.receiptValue}>{transactionId}</Text>
-          </View>
+          {!isCash && (
+            <>
+              {/* Transaction ID */}
+              <View style={styles.receiptRow}>
+                <Text style={styles.receiptLabel}>Transaction ID:</Text>
+                <Text style={styles.receiptValue}>{transactionId}</Text>
+              </View>
 
-          {/* Status */}
-          <View style={styles.receiptRow}>
-            <Text style={styles.receiptLabel}>Status:</Text>
-            <Text style={[styles.receiptValue, { color: '#27AE60' }]}>
-              Completed
-            </Text>
-          </View>
+              {/* Status */}
+              <View style={styles.receiptRow}>
+                <Text style={styles.receiptLabel}>Status:</Text>
+                <Text style={[styles.receiptValue, styles.statusCompleted]}> 
+                  Completed
+                </Text>
+              </View>
+            </>
+          )}
         </View>
       </View>
 
-      {/* Message */}
-      <View style={styles.messageContainer}>
-        <Text style={styles.messageIcon}>💌</Text>
-        <Text style={styles.messageText}>
-          A confirmation email has been sent to your registered email address
-        </Text>
-      </View>
+      {!isCash && (
+        <View style={styles.messageContainer}>
+          <Text style={styles.messageIcon}>💌</Text>
+          <Text style={styles.messageText}>
+            A confirmation email has been sent to your registered email address
+          </Text>
+        </View>
+      )}
 
       {/* Buttons */}
       <TouchableOpacity
         style={styles.primaryButton}
         onPress={handleNewDonation}>
-        <Text style={styles.primaryButtonText}>Make Another Donation</Text>
+        <Text style={styles.primaryButtonText}>Done</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -107,14 +119,15 @@ const SuccessScreen: React.FC<Props> = ({ route, navigation }) => {
         <Text style={styles.secondaryButtonText}>Return Home</Text>
       </TouchableOpacity>
 
-      {/* Impact Message */}
-      <View style={styles.impactContainer}>
-        <Text style={styles.impactTitle}>Your Impact</Text>
-        <Text style={styles.impactText}>
-          Your ${amount.toFixed(2)} donation will help us continue our mission to
-          preserve and celebrate our heritage for future generations.
-        </Text>
-      </View>
+      {!isCash && (
+        <View style={styles.impactContainer}>
+          <Text style={styles.impactTitle}>Your Impact</Text>
+          <Text style={styles.impactText}>
+            Your ${amount.toFixed(2)} donation will help us continue our mission to
+            preserve and celebrate our heritage for future generations.
+          </Text>
+        </View>
+      )}
     </ScrollView>
   );
 };
