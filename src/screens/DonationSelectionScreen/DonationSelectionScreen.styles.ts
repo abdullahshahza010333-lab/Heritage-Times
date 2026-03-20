@@ -25,6 +25,21 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     lineHeight: RFValue(20),
   },
+  adminLoginButton: {
+    alignSelf: 'flex-start',
+    marginTop: RFValue(12),
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: RFValue(20),
+    paddingHorizontal: RFValue(12),
+    paddingVertical: RFValue(6),
+    backgroundColor: Colors.backgroundAlt,
+  },
+  adminLoginButtonText: {
+    fontSize: RFValue(12),
+    fontWeight: '600',
+    color: Colors.textSecondary,
+  },
   selectedAmountContainer: {
     backgroundColor: Colors.primaryLight,
     borderRadius: RFValue(12),

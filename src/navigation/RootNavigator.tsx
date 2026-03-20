@@ -5,6 +5,7 @@ import { RootStackParamList } from './types';
 // Import Screens
 import SplashScreen from '../screens/SplashScreen/SplashScreen';
 import DonationSelectionScreen from '../screens/DonationSelectionScreen/DonationSelectionScreen';
+import AdminLoginScreen from '../screens/AdminLoginScreen/AdminLoginScreen';
 import PaymentMethodScreen from '../screens/PaymentMethodScreen/PaymentMethodScreen';
 import CashPaymentScreen from '../screens/CashPaymentScreen/CashPaymentScreen';
 import CardPaymentScreen from '../screens/CardPaymentScreen/CardPaymentScreen';
@@ -44,6 +45,14 @@ const RootNavigator = () => {
         component={DonationSelectionScreen}
         options={{
           title: 'Donation',
+        }}
+      />
+
+      <Stack.Screen
+        name="AdminLogin"
+        component={AdminLoginScreen}
+        options={{
+          title: 'Admin Login',
         }}
       />
 

@@ -3,6 +3,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 export type RootStackParamList = {
   SplashScreen: undefined;
   DonationSelection: undefined;
+  AdminLogin: undefined;
   PaymentMethod: { amount: number };
   CashPayment: { amount: number };
   CardPayment: { amount: number };

@@ -11,7 +11,6 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import styles from './CardPaymentScreen.styles';
 import Colors from '../../config/colors';
 import { initializePayment, payWithTap } from '../../services/paymentService';
-import { PaymentStatus } from 'mobile-payments-sdk-react-native';
 import type { RootStackParamList } from '../../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'CardPayment'>;
@@ -30,13 +29,8 @@ const CardPaymentScreen: React.FC<Props> = ({ route, navigation }) => {
         return;
       }
 
-      const payment = await payWithTap(amount);
-
-      if (payment?.status === PaymentStatus.COMPLETE) {
-        navigation.replace('Success', { amount, method: 'Card' });
-      } else {
-        Alert.alert('Payment Incomplete', 'The payment was not completed. Please try again.');
-      }
+      await payWithTap(amount);
+      navigation.replace('Success', { amount, method: 'Card' });
     } catch (error: any) {
       Alert.alert('Payment Failed', error?.message ?? 'An unexpected error occurred.');
     } finally {

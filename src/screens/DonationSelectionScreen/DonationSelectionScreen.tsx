@@ -11,11 +11,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import styles from './DonationSelectionScreen.styles';
 import Colors from '../../config/colors';
 import { DONATION_PRESET_AMOUNTS } from '../../config/donationAmounts';
-
-type RootStackParamList = {
-  DonationSelection: undefined;
-  PaymentMethod: { amount: number };
-};
+import type { RootStackParamList } from '../../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'DonationSelection'>;
 
@@ -86,6 +82,12 @@ const DonationSelectionScreen: React.FC<Props> = ({ navigation }) => {
         <Text style={styles.headerSubtitle}>
           Choose one of the quick amounts or Other
         </Text>
+        <TouchableOpacity
+          style={styles.adminLoginButton}
+          onPress={() => navigation.navigate('AdminLogin')}
+        >
+          <Text style={styles.adminLoginButtonText}>Admin Login</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Display Selected Amount */}
