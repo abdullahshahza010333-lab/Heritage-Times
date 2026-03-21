@@ -134,6 +134,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: RFValue(20),
   },
+  payButtonLoading: {
+    opacity: 0.7,
+  },
   payButtonDisabled: {
     backgroundColor: Colors.gray400,
   },

@@ -38,6 +38,7 @@ export interface SaveCashCollectionInput {
   amount: number;
   collectorId: string;
   collectorName: string;
+  donorEmail?: string;
 }
 
 export const saveCashCollection = async (
@@ -47,6 +48,7 @@ export const saveCashCollection = async (
     amount: payload.amount,
     collectorId: payload.collectorId,
     collectorName: payload.collectorName,
+    donorEmail: payload.donorEmail ?? null,
     method: 'cash',
     createdAt: firestore.FieldValue.serverTimestamp(),
   });

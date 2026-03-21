@@ -19,7 +19,7 @@ import {
 type Props = NativeStackScreenProps<RootStackParamList, 'CashPayment'>;
 
 const CashPaymentScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { amount } = route.params;
+  const { amount, donorEmail } = route.params;
   const [employees, setEmployees] = useState<EmployeeOption[]>([]);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -61,6 +61,7 @@ const CashPaymentScreen: React.FC<Props> = ({ route, navigation }) => {
         amount,
         collectorId: selectedEmployee.id,
         collectorName: selectedEmployee.name,
+        donorEmail,
       });
 
       navigation.navigate('Success', {
@@ -68,6 +69,7 @@ const CashPaymentScreen: React.FC<Props> = ({ route, navigation }) => {
         method: 'Cash',
         collectorName: selectedEmployee.name,
         cashCollectionId,
+        donorEmail,
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);

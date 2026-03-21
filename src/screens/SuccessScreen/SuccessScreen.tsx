@@ -12,7 +12,7 @@ import type { RootStackParamList } from '../../navigation/types';
 type Props = NativeStackScreenProps<RootStackParamList, 'Success'>;
 
 const SuccessScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { amount, method, collectorName, cashCollectionId } = route.params;
+  const { amount, method, collectorName, cashCollectionId, donorEmail } = route.params;
   const isCash = method === 'Cash';
   const transactionId = `HT${Date.now().toString().slice(-8)}`;
   const date = new Date().toLocaleDateString('en-US', {
@@ -87,6 +87,13 @@ const SuccessScreen: React.FC<Props> = ({ route, navigation }) => {
             <Text style={styles.receiptValue}>{date}</Text>
           </View>
 
+          {donorEmail ? (
+            <View style={styles.receiptRow}>
+              <Text style={styles.receiptLabel}>Email:</Text>
+              <Text style={styles.receiptValue}>{donorEmail}</Text>
+            </View>
+          ) : null}
+
           {!isCash && (
             <>
               {/* Transaction ID */}
@@ -111,7 +118,9 @@ const SuccessScreen: React.FC<Props> = ({ route, navigation }) => {
         <View style={styles.messageContainer}>
           <Text style={styles.messageIcon}>💌</Text>
           <Text style={styles.messageText}>
-            A confirmation email has been sent to your registered email address
+            {donorEmail
+              ? `A receipt has been sent to ${donorEmail}`
+              : 'A confirmation email has been sent to your registered email address'}
           </Text>
         </View>
       )}

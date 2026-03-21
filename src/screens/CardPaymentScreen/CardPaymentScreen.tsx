@@ -16,7 +16,7 @@ import type { RootStackParamList } from '../../navigation/types';
 type Props = NativeStackScreenProps<RootStackParamList, 'CardPayment'>;
 
 const CardPaymentScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { amount } = route.params;
+  const { amount, donorEmail } = route.params;
   const [loading, setLoading] = useState(false);
 
   const handleStartTapToPay = async () => {
@@ -30,7 +30,11 @@ const CardPaymentScreen: React.FC<Props> = ({ route, navigation }) => {
       }
 
       await payWithTap(amount);
-      navigation.replace('Success', { amount, method: 'Card' });
+      navigation.replace('Success', {
+        amount,
+        method: 'Card',
+        donorEmail,
+      });
     } catch (error: any) {
       Alert.alert('Payment Failed', error?.message ?? 'An unexpected error occurred.');
     } finally {
@@ -82,7 +86,7 @@ const CardPaymentScreen: React.FC<Props> = ({ route, navigation }) => {
 
       {/* Tap to Pay Button */}
       <TouchableOpacity
-        style={[styles.payButton, loading && { opacity: 0.7 }]}
+        style={[styles.payButton, loading && styles.payButtonLoading]}
         onPress={handleStartTapToPay}
         disabled={loading}>
         {loading ? (
