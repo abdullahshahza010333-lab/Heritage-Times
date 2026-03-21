@@ -92,13 +92,6 @@ const DonationSelectionScreen: React.FC<Props> = ({ navigation }) => {
     setCustomAmount('');
   };
 
-  const handleSelectOther = () => {
-    setIsOtherSelected(true);
-    setSelectedAmount(null);
-    setTimeout(() => {
-      customAmountInputRef.current?.focus();
-    }, 50);
-  };
 
   const handleCustomAmountChange = (value: string) => {
     const sanitizedValue = value.replace(/[^0-9]/g, '');
@@ -344,7 +337,7 @@ const DonationSelectionScreen: React.FC<Props> = ({ navigation }) => {
                 {isSavingAmounts ? (
                   <ActivityIndicator color={Colors.white} />
                 ) : (
-                  <Text style={styles.adminSaveButtonText}>Save to Firebase</Text>
+                  <Text style={styles.adminSaveButtonText}>Save</Text>
                 )}
               </TouchableOpacity>
             </View>

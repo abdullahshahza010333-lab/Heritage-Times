@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   ScrollView,
-  TextInput,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import styles from './PaymentMethodScreen.styles';
@@ -13,22 +12,13 @@ import type { RootStackParamList } from '../../navigation/types';
 type Props = NativeStackScreenProps<RootStackParamList, 'PaymentMethod'>;
 
 const PaymentMethodScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { amount, donorEmail: initialDonorEmail } = route.params;
-  const [donorEmail, setDonorEmail] = useState(initialDonorEmail ?? '');
+  const { amount } = route.params;
 
   const handlePaymentMethod = (method: 'cash' | 'card') => {
-    const normalizedEmail = donorEmail.trim();
-
     if (method === 'cash') {
-      navigation.navigate('CashPayment', {
-        amount,
-        donorEmail: normalizedEmail || undefined,
-      });
+      navigation.navigate('CashPayment', { amount });
     } else {
-      navigation.navigate('CardPayment', {
-        amount,
-        donorEmail: normalizedEmail || undefined,
-      });
+      navigation.navigate('CardPayment', { amount });
     }
   };
 
@@ -48,23 +38,6 @@ const PaymentMethodScreen: React.FC<Props> = ({ route, navigation }) => {
       <View style={styles.amountContainer}>
         <Text style={styles.amountLabel}>Donation Amount</Text>
         <Text style={styles.amountValue}>${amount.toFixed(2)}</Text>
-      </View>
-
-      <View style={styles.emailContainer}>
-        <Text style={styles.emailLabel}>Email (optional)</Text>
-        <TextInput
-          style={styles.emailInput}
-          placeholder="Enter email"
-          keyboardType="email-address"
-          inputMode="email"
-          autoCapitalize="none"
-          autoCorrect={false}
-          value={donorEmail}
-          onChangeText={setDonorEmail}
-        />
-        <Text style={styles.emailNote}>
-          On provided mail, you will get receipt.
-        </Text>
       </View>
 
       {/* Payment Options */}

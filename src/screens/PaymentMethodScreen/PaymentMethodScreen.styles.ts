@@ -44,30 +44,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: Colors.primary,
   },
-  emailContainer: {
-    marginBottom: RFValue(20),
-  },
-  emailLabel: {
-    fontSize: RFValue(13),
-    color: Colors.textSecondary,
-    fontWeight: '600',
-    marginBottom: RFValue(7),
-  },
-  emailInput: {
-    borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.backgroundAlt,
-    borderRadius: RFValue(10),
-    paddingVertical: RFValue(11),
-    paddingHorizontal: RFValue(12),
-    fontSize: RFValue(14),
-    color: Colors.textPrimary,
-  },
-  emailNote: {
-    marginTop: RFValue(7),
-    fontSize: RFValue(12),
-    color: Colors.textSecondary,
-  },
   paymentOptionsContainer: {
     gap: RFValue(16),
     marginBottom: RFValue(30),
