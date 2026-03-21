@@ -8,7 +8,12 @@ export type RootStackParamList = {
   CashPayment: { amount: number };
   CardPayment: { amount: number };
   Processing: { amount: number };
-  Success: { amount: number; method: string };
+  Success: {
+    amount: number;
+    method: string;
+    collectorName?: string;
+    cashCollectionId?: string;
+  };
 };
 
 export type RootStackScreenProps<T extends keyof RootStackParamList> =

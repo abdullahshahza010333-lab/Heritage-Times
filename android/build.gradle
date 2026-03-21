@@ -28,3 +28,9 @@ allprojects {
         maven { url "https://sdk.squareup.com/public/android" }
     }
 }
+
+subprojects {
+    configurations.all {
+        exclude group: "com.google.protobuf", module: "protobuf-java"
+    }
+}

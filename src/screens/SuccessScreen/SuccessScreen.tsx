@@ -7,16 +7,12 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import styles from './SuccessScreen.styles';
-
-type RootStackParamList = {
-  Success: { amount: number; method: string };
-  SplashScreen: undefined;
-};
+import type { RootStackParamList } from '../../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Success'>;
 
 const SuccessScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { amount, method } = route.params;
+  const { amount, method, collectorName, cashCollectionId } = route.params;
   const isCash = method === 'Cash';
   const transactionId = `HT${Date.now().toString().slice(-8)}`;
   const date = new Date().toLocaleDateString('en-US', {
@@ -70,6 +66,20 @@ const SuccessScreen: React.FC<Props> = ({ route, navigation }) => {
             <Text style={styles.receiptLabel}>Payment Method:</Text>
             <Text style={styles.receiptValue}>{method}</Text>
           </View>
+
+          {isCash && collectorName ? (
+            <View style={styles.receiptRow}>
+              <Text style={styles.receiptLabel}>Collected By:</Text>
+              <Text style={styles.receiptValue}>{collectorName}</Text>
+            </View>
+          ) : null}
+
+          {isCash && cashCollectionId ? (
+            <View style={styles.receiptRow}>
+              <Text style={styles.receiptLabel}>Cash Record ID:</Text>
+              <Text style={styles.receiptValue}>{cashCollectionId}</Text>
+            </View>
+          ) : null}
 
           {/* Date */}
           <View style={styles.receiptRow}>

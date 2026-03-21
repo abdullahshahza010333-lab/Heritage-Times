@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   ScrollView,
   Text,
@@ -8,33 +9,51 @@ import {
   View,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import auth from '@react-native-firebase/auth';
 import type { RootStackParamList } from '../../navigation/types';
 import styles from './AdminLoginScreen.styles';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AdminLogin'>;
 
-const ADMIN_EMAIL = 'admin@heritagetimes.com';
-const ADMIN_PASSWORD = 'admin123';
-
 const AdminLoginScreen: React.FC<Props> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const disabled = useMemo(() => {
-    return email.trim().length === 0 || password.trim().length === 0;
-  }, [email, password]);
+    return isLoading || email.trim().length === 0 || password.trim().length === 0;
+  }, [email, isLoading, password]);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     const normalizedEmail = email.trim().toLowerCase();
     const normalizedPassword = password.trim();
 
-    if (normalizedEmail !== ADMIN_EMAIL || normalizedPassword !== ADMIN_PASSWORD) {
-      Alert.alert('Login Failed', 'Invalid admin email or password.');
-      return;
-    }
+    try {
+      setIsLoading(true);
+      await auth().signInWithEmailAndPassword(normalizedEmail, normalizedPassword);
+      Alert.alert('Success', 'Admin logged in successfully.');
+      navigation.goBack();
+    } catch (error: any) {
+      const code = error?.code;
 
-    Alert.alert('Success', 'Admin logged in successfully.');
-    navigation.goBack();
+      if (code === 'auth/invalid-email') {
+        Alert.alert('Login Failed', 'Please enter a valid email address.');
+        return;
+      }
+
+      if (
+        code === 'auth/user-not-found' ||
+        code === 'auth/wrong-password' ||
+        code === 'auth/invalid-credential'
+      ) {
+        Alert.alert('Login Failed', 'Invalid email or password.');
+        return;
+      }
+
+      Alert.alert('Login Failed', error?.message ?? 'Unable to sign in right now.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -69,7 +88,11 @@ const AdminLoginScreen: React.FC<Props> = ({ navigation }) => {
           onPress={handleLogin}
           disabled={disabled}
         >
-          <Text style={styles.loginButtonText}>Login</Text>
+          {isLoading ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text style={styles.loginButtonText}>Login</Text>
+          )}
         </TouchableOpacity>
       </View>
     </ScrollView>

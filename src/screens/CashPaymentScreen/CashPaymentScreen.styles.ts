@@ -44,6 +44,74 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: Colors.primary,
   },
+  collectorContainer: {
+    marginBottom: RFValue(24),
+    backgroundColor: Colors.backgroundAlt,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: RFValue(12),
+    padding: RFValue(14),
+  },
+  collectorTitle: {
+    fontSize: RFValue(14),
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: RFValue(10),
+  },
+  loadingEmployeesContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: RFValue(10),
+  },
+  loadingEmployeesText: {
+    marginTop: RFValue(6),
+    fontSize: RFValue(12),
+    color: Colors.textSecondary,
+  },
+  employeeList: {
+    marginTop: RFValue(8),
+    gap: RFValue(8),
+  },
+  dropdownButton: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.white,
+    borderRadius: RFValue(8),
+    paddingVertical: RFValue(10),
+    paddingHorizontal: RFValue(12),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dropdownButtonText: {
+    fontSize: RFValue(14),
+    color: Colors.textPrimary,
+    fontWeight: '600',
+  },
+  dropdownArrow: {
+    fontSize: RFValue(11),
+    color: Colors.textSecondary,
+  },
+  employeeOption: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.white,
+    borderRadius: RFValue(8),
+    paddingVertical: RFValue(10),
+    paddingHorizontal: RFValue(12),
+  },
+  employeeOptionSelected: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.primaryLight,
+  },
+  employeeOptionText: {
+    fontSize: RFValue(14),
+    color: Colors.textPrimary,
+    fontWeight: '600',
+  },
+  employeeOptionTextSelected: {
+    color: Colors.primaryDark,
+  },
   instructionsContainer: {
     marginBottom: RFValue(25),
   },
@@ -121,6 +189,9 @@ const styles = StyleSheet.create({
     borderRadius: RFValue(10),
     alignItems: 'center',
     marginBottom: RFValue(20),
+  },
+  confirmButtonDisabled: {
+    opacity: 0.6,
   },
   confirmButtonText: {
     fontSize: RFValue(16),

@@ -7,12 +7,7 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import styles from './PaymentMethodScreen.styles';
-
-type RootStackParamList = {
-  PaymentMethod: { amount: number };
-  CardPayment: { amount: number };
-  Success: { amount: number; method: string };
-};
+import type { RootStackParamList } from '../../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PaymentMethod'>;
 
@@ -21,7 +16,7 @@ const PaymentMethodScreen: React.FC<Props> = ({ route, navigation }) => {
 
   const handlePaymentMethod = (method: 'cash' | 'card') => {
     if (method === 'cash') {
-      navigation.navigate('Success', { amount, method: 'Cash' });
+      navigation.navigate('CashPayment', { amount });
     } else {
       navigation.navigate('CardPayment', { amount });
     }
