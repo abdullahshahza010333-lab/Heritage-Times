@@ -6,7 +6,7 @@ const getApiBaseUrl = (): string => {
 
 export interface VerifyPaymentPayload {
   paymentId: string;
-  email: string;
+  email?: string;
 }
 
 const readErrorMessage = async (response: Response): Promise<string> => {

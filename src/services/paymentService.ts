@@ -39,15 +39,61 @@ const getSafeErrorMessage = (error: unknown): string => {
     return 'Square SDK is not linked for this iOS build. Use yarn ios:sim for simulator or yarn ios:device for real iPhone.';
   }
 
+  if (message.includes('Must call MobilePaymentsSdk#initialize first')) {
+    return 'Square SDK is not initialized yet. Reinstall the app (yarn android). Tap to Pay still requires a real NFC-supported Android device; emulator is not supported.';
+  }
+
   return message;
+};
+
+const isProbablyAndroidEmulator = (): boolean => {
+  if (Platform.OS !== 'android') {
+    return false;
+  }
+
+  const constants = (Platform as any).constants ?? {};
+  const fingerprint = String(constants.Fingerprint ?? '').toLowerCase();
+  const model = String(constants.Model ?? '').toLowerCase();
+  const brand = String(constants.Brand ?? '').toLowerCase();
+  const device = String(constants.Device ?? '').toLowerCase();
+  const product = String(constants.Product ?? '').toLowerCase();
+  const hardware = String(constants.Hardware ?? '').toLowerCase();
+
+  return (
+    fingerprint.includes('generic') ||
+    fingerprint.includes('emulator') ||
+    model.includes('emulator') ||
+    model.includes('android sdk built for x86') ||
+    hardware.includes('goldfish') ||
+    hardware.includes('ranchu') ||
+    product.includes('sdk_gphone') ||
+    (brand.startsWith('generic') && device.startsWith('generic'))
+  );
+};
+
+const validateSquarePaymentConfig = () => {
+  const locationId = PAYMENT_CONFIG.LOCATION_ID.trim();
+  if (!locationId) {
+    throw new Error('Square LOCATION_ID is missing. Please set a valid Square location ID in paymentConfig.ts.');
+  }
+
+  if (locationId.startsWith('sandbox-sq0idb-') || locationId.startsWith('sq0idp-')) {
+    throw new Error('Square LOCATION_ID is invalid: it looks like an Application ID. Use your Square Location ID from Developer Dashboard > Locations.');
+  }
 };
 
 /**
  * Ensures the Square SDK is authorized before taking a payment.
  * Returns true if authorization succeeds, false otherwise.
  */
-export const initializePayment = async (): Promise<boolean> => {
+export const initializePayment = async (): Promise<void> => {
   try {
+    if (isProbablyAndroidEmulator()) {
+      throw new Error('Tap to Pay is not supported on Android emulator. Please test on a real NFC-supported Android device.');
+    }
+
+    validateSquarePaymentConfig();
+
     const squareSdk = getSquareSdk();
     const state = await squareSdk.getAuthorizationState();
     if (state !== squareSdk.AuthorizationState.AUTHORIZED) {
@@ -56,11 +102,10 @@ export const initializePayment = async (): Promise<boolean> => {
         PAYMENT_CONFIG.LOCATION_ID,
       );
     }
-
-    return true;
   } catch (error) {
-    console.warn('Authorization error:', getSafeErrorMessage(error));
-    return false;
+    const message = getSafeErrorMessage(error);
+    console.warn('Authorization error:', message);
+    throw new Error(message);
   }
 };
 

@@ -1,6 +1,8 @@
 export const PAYMENT_CONFIG = {
-  // Replace these with your actual Square sandbox credentials
-  ACCESS_TOKEN: 'sandbox-sq0idb-NfXpUZpXWeTO01K3cWW_Eg',
-  LOCATION_ID: 'EAAAlz2VNbeFNhTspbjbOeoccXTtwZq6Wc8uBPY6zZ6LhBHYOZKXYtvQYmAn4fGoV',
+  // Replace with your real Square sandbox credentials.
+  // ACCESS_TOKEN: from Square app Credentials page.
+  // LOCATION_ID: from Square Developer Dashboard > Locations.
+  ACCESS_TOKEN: 'EAAAlz2VNbeFNhTspbjbOeoccXTtwZq6Wc8uBPY6z6LhBHY0ZKXYtvQYmAn4fGoV',
+  LOCATION_ID: 'LFRQDDG57DXK6',
   CURRENCY: 'USD',
 } as const;

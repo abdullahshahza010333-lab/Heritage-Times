@@ -23,35 +23,27 @@ const CardPaymentScreen: React.FC<Props> = ({ route, navigation }) => {
   const [loading, setLoading] = useState(false);
   const normalizedEmail = donorEmail.trim();
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
+  const hasEmail = normalizedEmail.length > 0;
+  const hasInvalidEmail = hasEmail && !isValidEmail;
 
   const handleStartTapToPay = async () => {
-    if (!normalizedEmail) {
-      Alert.alert('Email Required', 'Please enter your email to continue.');
-      return;
-    }
-
-    if (!isValidEmail) {
+    if (hasInvalidEmail) {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
 
     setLoading(true);
     try {
-      const authorized = await initializePayment();
+      await initializePayment();
 
-      if (!authorized) {
-        Alert.alert('Error', 'Failed to initialize payment. Please try again.');
-        return;
-      }
-
-  const paymentResult = await payWithTap(amount);
+      const paymentResult = await payWithTap(amount);
 
       const paymentId = extractPaymentId(paymentResult);
       if (paymentId) {
         try {
           await verifyPayment({
             paymentId,
-            email: normalizedEmail,
+            email: hasEmail ? normalizedEmail : undefined,
           });
         } catch (verifyError) {
           const verifyMessage =
@@ -97,7 +89,7 @@ const CardPaymentScreen: React.FC<Props> = ({ route, navigation }) => {
       </View>
 
       <View style={styles.emailContainer}>
-        <Text style={styles.emailLabel}>Email (required)</Text>
+        <Text style={styles.emailLabel}>Email (optional)</Text>
         <TextInput
           style={styles.emailInput}
           placeholder="Enter email"
@@ -108,7 +100,7 @@ const CardPaymentScreen: React.FC<Props> = ({ route, navigation }) => {
           value={donorEmail}
           onChangeText={setDonorEmail}
         />
-        <Text style={styles.emailNote}>Receipt will be sent to this email.</Text>
+        <Text style={styles.emailNote}>Add email to receive a receipt.</Text>
       </View>
 
       {/* Tap to Pay Card */}
@@ -139,11 +131,11 @@ const CardPaymentScreen: React.FC<Props> = ({ route, navigation }) => {
       <TouchableOpacity
         style={[
           styles.payButton,
-          (loading || !isValidEmail) && styles.payButtonDisabled,
+          (loading || hasInvalidEmail) && styles.payButtonDisabled,
           loading && styles.payButtonLoading,
         ]}
         onPress={handleStartTapToPay}
-        disabled={loading || !isValidEmail}>
+        disabled={loading || hasInvalidEmail}>
         {loading ? (
           <ActivityIndicator color={Colors.white} />
         ) : (

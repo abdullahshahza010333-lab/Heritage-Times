@@ -85,6 +85,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        def squareApplicationId = (project.findProperty("SQUARE_APPLICATION_ID") ?: "").toString()
+        buildConfigField "String", "SQUARE_APPLICATION_ID", "\"${squareApplicationId}\""
     }
     signingConfigs {
         debug {
@@ -111,6 +113,7 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+    implementation("com.squareup.sdk:mobile-payments-sdk:$squareSdkVersion")
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
