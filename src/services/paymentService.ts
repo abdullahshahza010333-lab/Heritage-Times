@@ -40,7 +40,7 @@ const getSafeErrorMessage = (error: unknown): string => {
   }
 
   if (message.includes('Must call MobilePaymentsSdk#initialize first')) {
-    return 'Square SDK is not initialized yet. Reinstall the app (yarn android). Tap to Pay still requires a real NFC-supported Android device; emulator is not supported.';
+    return 'Square SDK native initialization is missing. Set SQUARE_APPLICATION_ID in android/gradle.properties (or as env var), then rebuild: cd android && ./gradlew clean && cd .. && yarn android. Tap to Pay requires a real NFC-supported Android device; emulator is not supported.';
   }
 
   return message;
@@ -82,6 +82,16 @@ const validateSquarePaymentConfig = () => {
   }
 };
 
+const authorizeIfNeeded = async (squareSdk: SquareSdk): Promise<void> => {
+  const state = await squareSdk.getAuthorizationState();
+  if (state !== squareSdk.AuthorizationState.AUTHORIZED) {
+    await squareSdk.authorize(
+      PAYMENT_CONFIG.ACCESS_TOKEN,
+      PAYMENT_CONFIG.LOCATION_ID,
+    );
+  }
+};
+
 /**
  * Ensures the Square SDK is authorized before taking a payment.
  * Returns true if authorization succeeds, false otherwise.
@@ -95,12 +105,20 @@ export const initializePayment = async (): Promise<void> => {
     validateSquarePaymentConfig();
 
     const squareSdk = getSquareSdk();
-    const state = await squareSdk.getAuthorizationState();
-    if (state !== squareSdk.AuthorizationState.AUTHORIZED) {
-      await squareSdk.authorize(
-        PAYMENT_CONFIG.ACCESS_TOKEN,
-        PAYMENT_CONFIG.LOCATION_ID,
-      );
+    try {
+      await authorizeIfNeeded(squareSdk);
+    } catch (firstError) {
+      const firstMessage = firstError instanceof Error ? firstError.message : String(firstError);
+
+      // On some Android devices the native SDK init can complete slightly after JS boot.
+      if (Platform.OS === 'android' && firstMessage.includes('Must call MobilePaymentsSdk#initialize first')) {
+        await new Promise<void>((resolve) => {
+          setTimeout(() => resolve(), 600);
+        });
+        await authorizeIfNeeded(squareSdk);
+      } else {
+        throw firstError;
+      }
     }
   } catch (error) {
     const message = getSafeErrorMessage(error);

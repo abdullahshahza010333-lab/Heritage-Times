@@ -35,6 +35,7 @@ class MainApplication : Application(), ReactApplication {
     } else {
       try {
         MobilePaymentsSdk.initialize(squareApplicationId, this)
+        Log.i(TAG, "Square SDK initialized successfully.")
       } catch (error: Throwable) {
         Log.e(TAG, "Square SDK initialization failed.", error)
       }
