@@ -32,15 +32,18 @@ const getSquareSdk = (): SquareSdk => {
 const getSafeErrorMessage = (error: unknown): string => {
   const message = error instanceof Error ? error.message : String(error);
 
-  if (
-    Platform.OS === 'ios' &&
-    message.includes("doesn't seem to be linked")
-  ) {
+  if (Platform.OS === 'ios' && message.includes("doesn't seem to be linked")) {
     return 'Square SDK is not linked for this iOS build. Use yarn ios:sim for simulator or yarn ios:device for real iPhone.';
   }
 
   if (message.includes('Must call MobilePaymentsSdk#initialize first')) {
-    return 'Square SDK native initialization is missing. Set SQUARE_APPLICATION_ID in android/gradle.properties (or as env var), then rebuild: cd android && ./gradlew clean && cd .. && yarn android. Tap to Pay requires a real NFC-supported Android device; emulator is not supported.';
+    return (
+      'Square SDK failed to initialize. ' +
+      'Check all of these: newArchEnabled=false, SQUARE_APPLICATION_ID set in android/gradle.properties, and a full clean reinstall.\n' +
+      'Then run:\n' +
+      'cd android && ./gradlew clean && cd .. && adb uninstall com.heritagetimes && yarn android\n' +
+      'If it still fails, open Logcat and look for "Square SDK initialization failed" from MainApplication.'
+    );
   }
 
   return message;
@@ -74,11 +77,18 @@ const isProbablyAndroidEmulator = (): boolean => {
 const validateSquarePaymentConfig = () => {
   const locationId = PAYMENT_CONFIG.LOCATION_ID.trim();
   if (!locationId) {
-    throw new Error('Square LOCATION_ID is missing. Please set a valid Square location ID in paymentConfig.ts.');
+    throw new Error(
+      'Square LOCATION_ID is missing. Please set a valid Square location ID in paymentConfig.ts.',
+    );
   }
 
-  if (locationId.startsWith('sandbox-sq0idb-') || locationId.startsWith('sq0idp-')) {
-    throw new Error('Square LOCATION_ID is invalid: it looks like an Application ID. Use your Square Location ID from Developer Dashboard > Locations.');
+  if (
+    locationId.startsWith('sandbox-sq0idb-') ||
+    locationId.startsWith('sq0idp-')
+  ) {
+    throw new Error(
+      'Square LOCATION_ID is invalid: it looks like an Application ID. Use your Square Location ID from Developer Dashboard > Locations.',
+    );
   }
 };
 
@@ -99,7 +109,9 @@ const authorizeIfNeeded = async (squareSdk: SquareSdk): Promise<void> => {
 export const initializePayment = async (): Promise<void> => {
   try {
     if (isProbablyAndroidEmulator()) {
-      throw new Error('Tap to Pay is not supported on Android emulator. Please test on a real NFC-supported Android device.');
+      throw new Error(
+        'Tap to Pay is not supported on Android emulator. Please test on a real NFC-supported Android device.',
+      );
     }
 
     validateSquarePaymentConfig();
@@ -108,14 +120,45 @@ export const initializePayment = async (): Promise<void> => {
     try {
       await authorizeIfNeeded(squareSdk);
     } catch (firstError) {
-      const firstMessage = firstError instanceof Error ? firstError.message : String(firstError);
+      const firstMessage =
+        firstError instanceof Error ? firstError.message : String(firstError);
 
-      // On some Android devices the native SDK init can complete slightly after JS boot.
-      if (Platform.OS === 'android' && firstMessage.includes('Must call MobilePaymentsSdk#initialize first')) {
-        await new Promise<void>((resolve) => {
-          setTimeout(() => resolve(), 600);
-        });
-        await authorizeIfNeeded(squareSdk);
+      // On some devices the native SDK init completes slightly after JS boot.
+      // Retry with increasing delays before giving up.
+      if (
+        Platform.OS === 'android' &&
+        firstMessage.includes('Must call MobilePaymentsSdk#initialize first')
+      ) {
+        let lastError: unknown = firstError;
+
+        for (const delay of [800, 1500, 2500]) {
+          await new Promise<void>(resolve => setTimeout(resolve, delay));
+          try {
+            await authorizeIfNeeded(squareSdk);
+            lastError = null;
+            break;
+          } catch (retryErr) {
+            lastError = retryErr;
+          }
+        }
+
+        if (lastError) {
+          const lastMessage =
+            lastError instanceof Error ? lastError.message : String(lastError);
+
+          if (
+            lastMessage.includes('Must call MobilePaymentsSdk#initialize first')
+          ) {
+            // Some Android environments report this transiently before startPayment.
+            // Let payWithTap run and surface the final native error if it persists.
+            console.warn(
+              'Square authorization state check reported initialize-first. Proceeding to payment attempt.',
+            );
+            return;
+          }
+
+          throw lastError;
+        }
       } else {
         throw firstError;
       }
